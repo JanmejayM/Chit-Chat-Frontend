@@ -6,7 +6,6 @@ import ProtectedUser from "./auth/ProtectedUser";
 import * as React from "react";
 import { useRoutes } from "react-router-dom";
 function App() {
-
   let element = useRoutes([
     {
       path: "/",
