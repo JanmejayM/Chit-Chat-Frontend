@@ -47,22 +47,31 @@ const HomePage = () => {
 
           <p>Available ChatRooms</p>
 
-          <div className="row">
+          <div className="container-fulid row">
             {
 
               chatRooms.map((chatRoom, index) => {
 
-                return <div key={index} className="col-lg-3 col-md-4 mb-4" >
-
-                  <div className="card"  >
+                return <div key={index} className="col-lg-3 col-md-4 col-sm-12 mb-4" >
+                  <div className='container'>
+                  <div className="col card" style={{display:'flex',flexDirection:'row'}}>
                     <div className="card-body">
-                      <h5 className="card-title">{chatRoom.chatRoomId}</h5>
+                      {/* <h5 className="card-title">{chatRoom.chatRoomId}</h5> */}
                       <h6 className="card-subtitle mb-2 text-muted">{chatRoom.chatRoomName}</h6>
-                      <button onClick={() => {
+                      {/* <button className='btn btn-primary' onClick={() => {
+                        openRoom(chatRoom.chatRoomId);
+                      }}>Open</button> */}
+                    </div>
+                    <div className='col my-auto'>
+                    <button className='btn btn-primary' onClick={() => {
                         openRoom(chatRoom.chatRoomId);
                       }}>Open</button>
                     </div>
                   </div>
+
+
+                  </div>
+                
                 </div>
 
 
