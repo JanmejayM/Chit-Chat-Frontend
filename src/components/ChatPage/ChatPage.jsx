@@ -38,13 +38,15 @@ function ChatPage() {
 
 
   const getInitialMaxPage = async () => {
-    const maxPageResp = await axios.get(`http://localhost:8080/chat/getMaxPage`);
+    console.log("userid"+userid)
+    const maxPageResp = await axios.get(`http://localhost:8080/chat/getMaxPage?chatRoomId=${userid}`);
+    console.log(maxPageResp.data)
     setInitialMaxPage(maxPageResp.data);
   }
 
   const getPreviousChat = async () => {
 
-    const resp = await axios.get(`http://localhost:8080/chat/loadMessage?pageSize=10&pageNo=${index}&maxPage=${initialMaxPage}`)
+    const resp = await axios.get(`http://localhost:8080/chat/loadMessage?pageSize=10&pageNo=${index}&chatRoomId=${userid}&maxPage=${initialMaxPage}`)
 
     setMessages(resp.data);
   }
@@ -52,7 +54,7 @@ function ChatPage() {
   const loadPrevMessage = async () => {
 
 
-    const resp = await axios.get(`http://localhost:8080/chat/loadMessage?pageSize=10&pageNo=${index + 1}&maxPage=${initialMaxPage}`);
+    const resp = await axios.get(`http://localhost:8080/chat/loadMessage?pageSize=10&pageNo=${index + 1}&chatRoomId=${userid}&maxPage=${initialMaxPage}`);
 
 
     setMessages([...resp.data, ...messages])
@@ -61,14 +63,6 @@ function ChatPage() {
 
 
   }
-
-
-
-
-
-
-
-
 
 
   useEffect(() => {
