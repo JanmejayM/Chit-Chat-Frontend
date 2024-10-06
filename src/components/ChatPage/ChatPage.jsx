@@ -16,6 +16,7 @@ function ChatPage() {
   let { roomid } = useParams();
   const [index, setIndex] = useState(0);
   const [initialMaxPage, setInitialMaxPage] = useState(0);
+  const [user,setUser]=useState({});
 
 
 
@@ -28,17 +29,21 @@ function ChatPage() {
   useEffect(() => {
     setIndex(index => index + 1)
     getInitialMaxPage();
+    let userObj = JSON.parse(sessionStorage.getItem("userProfile"));
+    setUser(userObj);
   }, []);
 
 
   useEffect(() => {
     getPreviousChat();
+    //console.log(scrollBoxRef.current)  
+    scrollBoxRef?.current?.scrollIntoView({ behavior: 'smooth', block: "end" })
   }, [initialMaxPage]);
 
 
 
   const getInitialMaxPage = async () => {
-    console.log("userid"+userid)
+    console.log("userid" + userid)
     const maxPageResp = await axios.get(`http://localhost:8080/chat/getMaxPage?chatRoomId=${roomid}`);
     console.log(maxPageResp.data)
     setInitialMaxPage(maxPageResp.data);
@@ -83,18 +88,21 @@ function ChatPage() {
 
         let msgObj = {
           "id": convertit.id,
+          "userid":convertit.userid,
           "message": convertit.message,
           "username": convertit.username,
           "time": convertit.time
         };
 
 
-        //console.log(messages)
+
+         console.log(msgObj)
 
 
 
         setMessages(messages => [...messages, msgObj])
 
+        scrollBoxRef?.current?.scrollIntoView({ behavior: 'smooth', block: "end" })
 
 
 
@@ -135,12 +143,14 @@ function ChatPage() {
 
     if (stompClient && inputValue.trim() !== '') {
       //console.log(inputName)
-      let chat = { userid: Number(userid), message: inputValue, chatRoomId: Number(roomid) }
+      //console.log(userObj)
+      let chat = { userid: Number(userid), message: inputValue, chatRoomId: Number(roomid), username: user["name"] }
       console.log(chat)
       stompClient.publish({
         destination: `/app/send-message/` + roomid.toString(),
         body: JSON.stringify(chat)
       });
+
 
       setInputValue('')
 
@@ -152,44 +162,73 @@ function ChatPage() {
 
   return (
     <div className='App'>
-      <div style={{ position: 'relative' }}>
+      <div style={{ }}>
 
-        <h1 style={{ textAlign: 'center' }}>  Chat Application</h1>
+        <h1 style={{ fontFamily: 'Courier New', fontWeight: 'bold', textAlign: 'center' }}>  Chat Application</h1>
 
 
-        <div className="scroll-box" ref={scrollBoxRef} >
+
+        <div className="scroll-box rounded-2" >
 
           {/* <p>{index}</p>
 <p>maxpage{initialMaxPage}</p> */}
 
-          <div className="scroll-content">
+          <div className="scroll-content" ref={scrollBoxRef}>
             {/*       
        {
                   console.log(messages)
 
        } */}
 
-            <button onClick={loadPrevMessage} disabled={index === initialMaxPage}>Click to load</button>
+            {messages.length !== 0 ?
+              <div>
+                <button className='btn' onClick={loadPrevMessage} disabled={index === initialMaxPage} style={{ backgroundColor: '#DFCCFB' }}>Click to load</button>
 
-            {
-              messages.map((message, index) => {
+                {
+                  messages.map((message, index) => {
 
 
-                // return <div key={index}>{message.id+"--"+message.username+"--"+message.message}</div>
+                    // return <div key={index}>{message.id+"--"+message.username+"--"+message.message}</div>
 
+                    let isUser=user.id===message.userid;
+                    
+                    // return <div className={isUser? "card": "card bg-primary"} key={index} >
+                    //   <div className='card-title' style={isUser?{textAlign:'end'}:{textAlign:'start'}}>
+                    //   <i class="fa fa-user" aria-hidden="true"></i>
+                    //   {isUser?"You":message.username}
+                    //     </div>
+                    //   <div className="card-body">
+                    //     <h5 className="card-title">{message.id}</h5>
+                    //     <p className="card-text">{message.message}</p>
+                    //   </div>
+                    // </div>
 
-                return <div className="card" key={index}>
-                  <div className="card-body">
-                    <h5 className="card-title">{message.id}{message.username}</h5>
-                    <p className="card-text">{message.message}</p>
+                    return <div key={index}  style={isUser?{fontSize:'12pt',textAlign:'end'}:{fontSize:'12pt',textAlign:'start'}}>
+                    
+                    
+                    <div>
+                    <i className="fa fa-user" aria-hidden="true"></i>
+                    {isUser?"You":message.username}
+                      
+                      {/* <h5 className="title">{message.id}</h5> */}
+
+                      <div className={isUser? "card-body rounded-start-pill": "card-body rounded-end-pill"} style={isUser?{fontSize:'18pt',backgroundColor:'#FFF3DA'}:{fontSize:'18pt',backgroundColor:'#E5D9F2'}}>
+                      <p className="mx-2" style={{wordWrap:'break-word'}}>{message.message}</p>
+
+                      </div>
+                    
                   </div>
-                </div>
+                  </div>
 
 
 
 
+                  })}
+              </div>
 
-              })}
+              : <div>
+                <p>No Chats found</p>
+              </div>}
 
           </div>
 
@@ -199,7 +238,7 @@ function ChatPage() {
 
       </div>
 
-      <div style={{ paddingLeft: '10px' }}>
+      <div >
 
         {/* <input
         type="text"
@@ -208,7 +247,7 @@ function ChatPage() {
         placeholder='message'
       /> */}
 
-        <div className="messageBox">
+        <div className="messageBox rounded-1">
 
           <input type="text"
             value={inputValue}

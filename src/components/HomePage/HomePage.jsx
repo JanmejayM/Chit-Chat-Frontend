@@ -18,11 +18,6 @@ const HomePage = () => {
 
   }, []);
 
- 
-
-
-
-
   const getAllChatRoomsOfUser = (userid) => {
     ChatRoomService.getAvailableChatRooms(userid)
       .then((data) => {
@@ -40,58 +35,91 @@ const HomePage = () => {
   }
 
   return (
-    <div>
+    <div className='container mt-5 mb-5'>
+      <div className="row">
+        <div className="col-lg-6 col-md-6 col-sm-6 col-xs-6 mb-5" >
+          <p style={{fontFamily:'Courier New',fontWeight:'bold'}}>Available Chat Rooms</p>
 
-      
-        <div>
+          <div style={{ overflowY: 'scroll', overflow: 'scroll', maxHeight: '80vh'}}>
 
-          <p>Available ChatRooms</p>
 
-          <div className="container-fulid row">
             {
 
               chatRooms.map((chatRoom, index) => {
 
-                return <div key={index} className="col-lg-3 col-md-4 col-sm-12 mb-4" >
-                  <div className='container'>
-                  <div className="col card" style={{display:'flex',flexDirection:'row'}}>
+                return <div key={index}  >
+
+                  <div className="card mb-3" style={{ backgroundColor: '#DFCCFB' }}>
                     <div className="card-body">
-                      {/* <h5 className="card-title">{chatRoom.chatRoomId}</h5> */}
                       <h6 className="card-subtitle mb-2 text-muted">{chatRoom.chatRoomName}</h6>
-                      {/* <button className='btn btn-primary' onClick={() => {
-                        openRoom(chatRoom.chatRoomId);
-                      }}>Open</button> */}
-                    </div>
-                    <div className='col my-auto'>
-                    <button className='btn btn-primary' onClick={() => {
+                      <button className='btn' style={{ backgroundColor: '#E5D9F2' }} onClick={() => {
                         openRoom(chatRoom.chatRoomId);
                       }}>Open</button>
                     </div>
-                  </div>
 
 
                   </div>
-                
+
+
                 </div>
+
+
 
 
               })}
           </div>
 
-          {isLoading ? <div style={{textAlign:'center',marginTop:'15%'}}><ColorRing
-  visible={true}
-  height="150"
-  width="150"
-  ariaLabel="color-ring-loading"
-  wrapperStyle={{}}
-  wrapperClass="color-ring-wrapper"
-  colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']}
-  /> 
-  </div>:<div></div>}
+        </div>
+        <div className="col-1" >
+        </div>
+        <div className="addRoom col-lg-4 col-md-4 col-sm-4 col-xs-4">
+          <p style={{fontFamily:'Courier New',fontWeight:'bold'}}>Create New Chat Room</p>
+          <div style={{width:'100%'}}>
+
+            <div className='card'>
+
+              <button className='btn' style={{ backgroundColor: '#DFCCFB' }}  data-bs-toggle="modal" data-bs-target="#exampleModal">
+                <i className='fas fa-plus fa-4x'></i>
+              </button>
+
+
+            </div>
+          </div>
 
 
         </div>
-      
+
+      </div>
+
+      {isLoading ? <div style={{ textAlign: 'center', marginTop: '15%' }}><ColorRing
+        visible={true}
+        height="150"
+        width="150"
+        ariaLabel="color-ring-loading"
+        wrapperStyle={{}}
+        wrapperClass="color-ring-wrapper"
+        colors={['#e15b64', '#f47e60', '#f8b26a', '#abbd81', '#849b87']}
+      />
+      </div> : <div></div>}
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 
     </div>);

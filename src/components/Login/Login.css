@@ -2,14 +2,13 @@
 .container-fluid{
       position:absolute;
        opacity: 0.9;
-   height:100%;
-    width: 100%;
-       background-position: left;
-       background-repeat: no-repeat;
+   height:100vh;
+    width: 100vw;
+       background-repeat: repeat;
        background-size:cover;
-       padding-top: 150px;
-       filter: blur(8px);
        z-index: -99;
+       background-image: url('/src/assets/background.jpeg');
+       backdrop-filter: blur(20px);
    
    
    }
@@ -17,10 +16,8 @@
    form{
        width: auto;
        /* max-width: 400px; */
-   
-       margin-top: 20vh;
-       margin-left: auto;
-   margin-right:auto;
+       z-index: 99;
+       margin-top: 200px;
    background-color: aliceblue;
    border-style: solid;
    border-width: 0.5px;
