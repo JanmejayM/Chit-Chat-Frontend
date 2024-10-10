@@ -18,7 +18,7 @@ function App() {
       
     },
     {
-     path:"chat/:userid/:roomid",
+     path:"/chat",
      element:<ProtectedUser><ChatPage/></ProtectedUser>
     }
   ]);

@@ -2,9 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import SockJS from 'sockjs-client'
 import { Client } from '@stomp/stompjs';
 import './ChatPage.css';
-import { ColorRing } from 'react-loader-spinner'
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import ChatRoomService from '../../services/ChatRoomService';
+
 
 
 function ChatPage() {
@@ -12,32 +12,41 @@ function ChatPage() {
   const scrollBoxRef = useRef(null);
   const [inputValue, setInputValue] = useState('');
   const [stompClient, setStompClient] = useState(null);
-  let { userid } = useParams();
-  let { roomid } = useParams();
+  const [userid, setUserid] = useState(0);
+  const [roomid, setRoomid] = useState(0);
   const [index, setIndex] = useState(0);
   const [initialMaxPage, setInitialMaxPage] = useState(0);
-  const [user,setUser]=useState({});
+  const [user, setUser] = useState({});
+  const [roomName,setRoomName]=useState("")
 
 
 
   useEffect(() => {
-    console.log(index + "--" + initialMaxPage)
-
+  
+    getInitialMaxPage();
+    //console.log(roomName)
   }, [index]);
 
 
   useEffect(() => {
-    setIndex(index => index + 1)
-    getInitialMaxPage();
+
     let userObj = JSON.parse(sessionStorage.getItem("userProfile"));
     setUser(userObj);
+    setUserid(userObj?.id);
+    let rooomid = sessionStorage.getItem("roomid");
+    console.log(rooomid)
+    setRoomid(rooomid);
+    setIndex(index => index + 1)
+   getChatRoomDetails(rooomid);
+
+
   }, []);
 
 
   useEffect(() => {
     getPreviousChat();
-    //console.log(scrollBoxRef.current)  
     scrollBoxRef?.current?.scrollIntoView({ behavior: 'smooth', block: "end" })
+
   }, [initialMaxPage]);
 
 
@@ -69,6 +78,11 @@ function ChatPage() {
 
   }
 
+  const getChatRoomDetails=async(id)=>{
+    const resp=await ChatRoomService.getChatRoomDetails(id);
+    setRoomName(resp.data.chatRoomName)
+  }
+
 
   useEffect(() => {
     const client = new Client({
@@ -88,7 +102,7 @@ function ChatPage() {
 
         let msgObj = {
           "id": convertit.id,
-          "userid":convertit.userid,
+          "userid": convertit.userid,
           "message": convertit.message,
           "username": convertit.username,
           "time": convertit.time
@@ -96,7 +110,7 @@ function ChatPage() {
 
 
 
-         console.log(msgObj)
+        console.log(msgObj)
 
 
 
@@ -127,19 +141,15 @@ function ChatPage() {
         client.deactivate();
       }
     };
-  }, []);
-
-  // const initMessage=()=>{
+  }, [initialMaxPage]);
 
 
-  // setMessages(prevMessages=>[...message,...prevMessages])
-
-
-
-  // }
 
   const handleMessageSend = () => {
 
+    if(initialMaxPage===0){
+      window.location.reload();
+    }
 
     if (stompClient && inputValue.trim() !== '') {
       //console.log(inputName)
@@ -151,6 +161,7 @@ function ChatPage() {
         body: JSON.stringify(chat)
       });
 
+      scrollBoxRef?.current?.scrollIntoView({ behavior: 'smooth', block: "end" })
 
       setInputValue('')
 
@@ -162,23 +173,18 @@ function ChatPage() {
 
   return (
     <div className='App'>
-      <div style={{ }}>
+      <div style={{}}>
 
-        <h1 style={{ fontFamily: 'Courier New', fontWeight: 'bold', textAlign: 'center' }}>  Chat Application</h1>
+        <h1 style={{ fontFamily: 'Courier New', fontWeight: 'bold', textAlign: 'center' }}>{roomName}</h1>
 
 
 
-        <div className="scroll-box rounded-2" >
+        <div className="scroll-box px-2 py-0" ref={scrollBoxRef}>
 
-          {/* <p>{index}</p>
-<p>maxpage{initialMaxPage}</p> */}
+  
 
-          <div className="scroll-content" ref={scrollBoxRef}>
-            {/*       
-       {
-                  console.log(messages)
-
-       } */}
+          <div className="scroll-content" >
+           
 
             {messages.length !== 0 ?
               <div>
@@ -188,37 +194,27 @@ function ChatPage() {
                   messages.map((message, index) => {
 
 
-                    // return <div key={index}>{message.id+"--"+message.username+"--"+message.message}</div>
 
-                    let isUser=user.id===message.userid;
-                    
-                    // return <div className={isUser? "card": "card bg-primary"} key={index} >
-                    //   <div className='card-title' style={isUser?{textAlign:'end'}:{textAlign:'start'}}>
-                    //   <i class="fa fa-user" aria-hidden="true"></i>
-                    //   {isUser?"You":message.username}
-                    //     </div>
-                    //   <div className="card-body">
-                    //     <h5 className="card-title">{message.id}</h5>
-                    //     <p className="card-text">{message.message}</p>
-                    //   </div>
-                    // </div>
+                    let isUser = user.id === message.userid;
 
-                    return <div key={index}  style={isUser?{fontSize:'12pt',textAlign:'end'}:{fontSize:'12pt',textAlign:'start'}}>
-                    
-                    
-                    <div>
-                    <i className="fa fa-user" aria-hidden="true"></i>
-                    {isUser?"You":message.username}
-                      
-                      {/* <h5 className="title">{message.id}</h5> */}
+                
 
-                      <div className={isUser? "card-body rounded-start-pill": "card-body rounded-end-pill"} style={isUser?{fontSize:'18pt',backgroundColor:'#FFF3DA'}:{fontSize:'18pt',backgroundColor:'#E5D9F2'}}>
-                      <p className="mx-2" style={{wordWrap:'break-word'}}>{message.message}</p>
+                    return <div key={index} style={isUser ? { fontSize: '10pt', textAlign: 'end' } : { fontSize: '10pt', textAlign: 'start' }}>
+
+
+                      <div>
+                        <i className="fa fa-user" aria-hidden="true"></i>
+                        {isUser ? "You" : message.username}
+
+                        {/* <h5 className="title">{message.id}</h5> */}
+
+                        <div className={isUser ? "card-body rounded-start-pill" : "card-body rounded-end-pill"} style={isUser ? { fontSize: '18pt', backgroundColor: '#FFF3DA' } : { fontSize: '18pt', backgroundColor: '#E5D9F2' }}>
+                          <p className="m-2" style={{ wordWrap: 'break-word' }}>{message.message}</p>
+
+                        </div>
 
                       </div>
-                    
-                  </div>
-                  </div>
+                    </div>
 
 
 
@@ -240,12 +236,7 @@ function ChatPage() {
 
       <div >
 
-        {/* <input
-        type="text"
-        value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
-        placeholder='message'
-      /> */}
+      
 
         <div className="messageBox rounded-1">
 
@@ -276,10 +267,6 @@ function ChatPage() {
         </div>
 
 
-        {/* 
-      <button onClick={()=>{handleMessageSend();
-      setDisable(true);
-      }} disabled={ inputValue ===''}>Send</button> */}
 
 
 
