@@ -8,15 +8,44 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [chatRooms, setChatRooms] = useState([])
   const [isLoading, setIsLoading] = useState(true);
+  const [newChatRoomName,setNewChatRoomName]=useState("");
+  const [addChatRoom,setAddChatRoom]=useState(false);
 
 
   useEffect(() => {
+    if(sessionStorage.getItem('roomid')!=null){
+      sessionStorage.removeItem("roomid");
+
+    }
     let userid = JSON.parse(sessionStorage.getItem("userProfile"))?.id;
     console.log(userid);
     setUserId(userid);
     getAllChatRoomsOfUser(userid);
 
-  }, []);
+  }, [addChatRoom]);
+
+
+
+  const handleChatRoomName=(e)=>{
+    setNewChatRoomName(e.target.value)
+    //console.log(newChatRoomName)
+  }
+  const handleSubmit=()=>{
+    ChatRoomService.createNewChatRoom(userid,newChatRoomName)
+    .then((data) => {
+      //setChatRooms(data.data);
+      setAddChatRoom(true);
+      setIsLoading(true);
+    })
+    .catch((error) => {
+
+      setIsLoading(false);
+    }).finally(
+      setIsLoading(false)
+    )
+    
+
+  }
 
   const getAllChatRoomsOfUser = (userid) => {
     ChatRoomService.getAvailableChatRooms(userid)
@@ -31,7 +60,8 @@ const HomePage = () => {
   }
 
   const openRoom = (roomid) => {
-    navigate(`/chat/${userid}/${roomid}`);
+    sessionStorage.setItem("roomid",roomid);
+    navigate('/chat');
   }
 
   return (
@@ -108,10 +138,18 @@ const HomePage = () => {
     <div class="modal-content">
       <div class="modal-header">
         <h1 class="modal-title fs-5" id="exampleModalLabel">Modal title</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        {/* <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> */}
       </div>
       <div class="modal-body">
-        ...
+      
+      <div>
+        <input type='text' className="form-control" name="chatRoomName" placeholder='Name of Chat Room' onChange={(e)=>{handleChatRoomName(e)}}></input>
+        <button className="form-control btn" style={{backgroundColor:'#DFCCFB'}} type="button" onClick={handleSubmit}>Create Room</button>
+
+
+      </div>
+
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
